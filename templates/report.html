@@ -1,0 +1,36 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Report
+{% endblock %}
+
+{% block main %}
+    <table class="table">
+        <thead>
+        <tr>
+            <th scope="col">Nome</th>
+            <th scope="col">Sobrenome</th>
+            <th scope="col">Email</th>
+            <th scope="col">Telefone</th>
+            <th scope="col">Unit</th>
+            <th scope="col">Password</th>
+        </tr>
+        </thead>
+
+        <tbody>
+            {% for row in transactions %}
+        <tr>
+        <td >{{ row["nome"] }}</td>
+        <td >{{ row["sobrenome"] }}</td>
+        <td >{{ row["email"] }}</td>
+        <td> {{ row["phone"] }}</td>
+        <td> {{ row["unit"] }}</td>
+        <td> {{ row["password"] }}</td>
+
+        </tr>
+        {% endfor %}
+        </tbody>
+
+    </table>
+
+    {% endblock %}
