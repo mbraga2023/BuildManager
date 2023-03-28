@@ -1,22 +1,14 @@
 {% extends "layout.html" %}
 
 {% block title %}
-    Portfolio
+    Dashboard
 {% endblock %}
 
 {% block main %}
-    <table>
-        <tr>
-            <th>Symbol</th>
-            <th>Shares</th>
-            <th>Price</th>
-        </tr>
-        {% for row in datebase %}
-        <tr>
-        <td>{{ row["symbol"]}}</td>
-        <td>{{ row["shares"]}}</td>
-        <td>{{ row["price"]}}</td>
-        </tr>
-        {% endfor %}
+    <table class="table">
+        <div><button type="button">Requests</button></div>
+        <div><button type="button">Notices - News</button></div><br>
+        <div><button type="button">For Sale</button></div>
+        <div><button type="button">Info / Rules / Regulations</button></div>
     </table>
 {% endblock %}

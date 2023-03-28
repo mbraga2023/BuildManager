@@ -1,0 +1,36 @@
+@app.route("/register_user", methods=["GET", "POST"])
+def register():
+    """Register user"""
+    if request.method == "GET":
+        return render_template ("register_user.html")
+
+    else:
+        nome = request.form.get("nome")
+        sobrenome = request.form.get("sobrenome")
+        email = request.form.get("email")
+        phone = request.form.get("phone")
+        unit = request.form.get("unit")
+        password = request.form.get("password")
+        confirmation = request.form.get("confirmation")
+
+        try:
+            new_user = db.execute("INSERT INTO residentes (nome, sobrenome, email, phone, unit, password ) VALUES (?, ?, ?, ?, ?, ?)", nome, sobrenome, email, phone, unit, password)
+        except:
+            return print("username already exists")
+
+        return redirect("/")
+
+
+
+ if not username:
+            flash("You need to type Username")
+            return redirect ("/register")
+        if not password:
+            flash("You need to type Password")
+            return redirect ("/register")
+        if not confirmation:
+            flash("Need to tyoe confirmation")
+            return redirect ("/register")
+        if password != confirmation:
+            flash("Confirmation not match")
+            return redirect ("/register")

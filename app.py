@@ -1,17 +1,21 @@
 import os
 
 from cs50 import SQL
-import pandas as pd
-from flask import Flask, flash, redirect, render_template, request, session
+from flask import Flask, flash, redirect, render_template, session, request
+from flask_session import Session
 from tempfile import mkdtemp
+#from werkzeug.security import check_password_hash, generate_password_hash
+
+from helpers import apology, login_required
+import datetime
 
 # Configure application
 app = Flask(__name__)
 
 # Configure session to use filesystem (instead of signed cookies)
-#app.config["SESSION_PERMANENT"] = False
-#app.config["SESSION_TYPE"] = "filesystem"
-#Session(app)
+app.config["SESSION_PERMANENT"] = False
+app.config["SESSION_TYPE"] = "filesystem"
+Session(app)
 
 # Configure CS50 Library to use SQLite database
 
@@ -31,6 +35,14 @@ def after_request(response):
 def index():
     return render_template("login.html")
 
+@app.route("/index")
+@login_required
+def dashboard():
+    """Show dashboard"""
+    user_id = session["user_id"]
+
+    return render_template("index.html")
+
 
 @app.route("/report")
 def report():
@@ -41,23 +53,68 @@ def report():
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
-    """Register user"""
+    """Register admin"""
     if request.method == "GET":
         return render_template ("register.html")
 
     else:
-        nome = request.form.get("nome")
-        sobrenome = request.form.get("sobrenome")
-        email = request.form.get("email")
-        phone = request.form.get("phone")
-        unit = request.form.get("unit")
+        username = request.form.get("username")
         password = request.form.get("password")
         confirmation = request.form.get("confirmation")
 
-        try:
-            new_user = db.execute("INSERT INTO residentes (nome, sobrenome, email, phone, unit, password ) VALUES (?, ?, ?, ?, ?, ?)", nome, sobrenome, email, phone, unit, password)
-        except:
-            return print("username already exists")
+        if not username:
+            return apology("Must have a username")
+        if not password:
+            return apology("Must have password")
+        if not confirmation:
+            return apology ("Must have confirmation")
+        if password != confirmation:
+            return apology ("Password and confirmation does not match")
 
-        return redirect("/")
+        #hash = generate_password_hash(password)
+
+        try:
+            new_user = db.execute("INSERT INTO usuarios (username, hash) VALUES (?, ?)", username, password)
+
+
+        except:
+             return apology("username already exists")
+
+        #session["user_id"] = new_user
+        return redirect("/login")
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    """Log user in"""
+
+    # Forget any user_id
+    session.clear()
+
+    # User reached route via POST (as by submitting a form via POST)
+    if request.method == "POST":
+
+        # Ensure username was submitted
+        if not request.form.get("username"):
+            return apology("must provide username", 403)
+
+        # Ensure password was submitted
+        elif not request.form.get("password"):
+            return apology("must provide password", 403)
+
+        # Query database for username
+        rows = db.execute("SELECT * FROM usuarios WHERE username = ?", request.form.get("username"))
+
+        # Ensure username exists and password is correct
+        if len(rows) != 1 or not check_password_hash(rows[0]["hash"], request.form.get("password")):
+            return apology("invalid username and/or password", 403)
+
+        # Remember which user has logged in
+        session["user_id"] = rows[0]["id"]
+
+        # Redirect user to home page
+        return redirect("/index")
+
+    # User reached route via GET (as by clicking a link or via redirect)
+    else:
+        return render_template("login.html")
 
