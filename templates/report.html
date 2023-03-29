@@ -1,19 +1,19 @@
 {% extends "layout.html" %}
 
 {% block title %}
-    Report
+    List of residents
 {% endblock %}
 
 {% block main %}
     <table class="table">
         <thead>
         <tr>
-            <th scope="col">Nome</th>
-            <th scope="col">Sobrenome</th>
+            <th scope="col">Name</th>
+            <th scope="col">Last name</th>
             <th scope="col">Email</th>
             <th scope="col">Telefone</th>
             <th scope="col">Unit</th>
-            <th scope="col">Password</th>
+
         </tr>
         </thead>
 
@@ -22,10 +22,11 @@
         <tr>
         <td >{{ row["nome"] }}</td>
         <td >{{ row["sobrenome"] }}</td>
-        <td >{{ row["email"] }}</td>
+        <td >{{ row["username_email"] }}</td>
         <td> {{ row["phone"] }}</td>
         <td> {{ row["unit"] }}</td>
-        <td> {{ row["password"] }}</td>
+        <td value="delete" action="/delete" method="post"> <type="button"  type="submit">Delete</button></td>
+        <td> <type="button" value="edit">Edit</button></td>
 
         </tr>
         {% endfor %}
