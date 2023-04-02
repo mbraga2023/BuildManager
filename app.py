@@ -4,10 +4,11 @@ from cs50 import SQL
 from flask import Flask, flash, redirect, render_template, session, request
 from flask_session import Session
 from tempfile import mkdtemp
-#from werkzeug.security import check_password_hash, generate_password_hash
+from werkzeug.security import check_password_hash, generate_password_hash
 
 from helpers import apology, login_required
 import datetime
+
 
 # Configure application
 app = Flask(__name__)
@@ -19,7 +20,7 @@ Session(app)
 
 # Configure CS50 Library to use SQLite database
 
-db = SQL("sqlite:///users.db")
+db = SQL("sqlite:///banco.db")
 
 # Make sure API key is set
 
@@ -34,54 +35,6 @@ def after_request(response):
 @app.route('/')
 def index():
     return render_template("login.html")
-
-@app.route("/index")
-@login_required
-def dashboard():
-    """Show dashboard"""
-    user_id = session["user_id"]
-
-    return render_template("index.html")
-
-
-@app.route("/report")
-def report():
-    """Show report"""
-    transactions_db = db.execute ("SELECT * FROM residentes")
-    return render_template("report.html", transactions = transactions_db)
-
-
-@app.route("/register", methods=["GET", "POST"])
-def register():
-    """Register admin"""
-    if request.method == "GET":
-        return render_template ("register.html")
-
-    else:
-        username = request.form.get("username")
-        password = request.form.get("password")
-        confirmation = request.form.get("confirmation")
-
-        if not username:
-            return apology("Must have a username")
-        if not password:
-            return apology("Must have password")
-        if not confirmation:
-            return apology ("Must have confirmation")
-        if password != confirmation:
-            return apology ("Password and confirmation does not match")
-
-        #hash = generate_password_hash(password)
-
-        try:
-            new_user = db.execute("INSERT INTO usuarios (username, hash) VALUES (?, ?)", username, password)
-
-
-        except:
-             return apology("username already exists")
-
-        #session["user_id"] = new_user
-        return redirect("/login")
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -102,7 +55,7 @@ def login():
             return apology("must provide password", 403)
 
         # Query database for username
-        rows = db.execute("SELECT * FROM usuarios WHERE username = ?", request.form.get("username"))
+        rows = db.execute("SELECT * FROM users WHERE username_email = ?", request.form.get("username"))
 
         # Ensure username exists and password is correct
         if len(rows) != 1 or not check_password_hash(rows[0]["hash"], request.form.get("password")):
@@ -117,4 +70,73 @@ def login():
     # User reached route via GET (as by clicking a link or via redirect)
     else:
         return render_template("login.html")
+
+
+@app.route("/index")
+@login_required
+def dashboard():
+    """Show dashboard"""
+    user_id = session["user_id"]
+
+    return render_template("index.html")
+
+
+@app.route("/report")
+def report():
+    """Show report"""
+    transactions_db = db.execute ("SELECT * FROM users")
+    return render_template("report.html", transactions = transactions_db)
+
+@app.route("/delete")
+def delete():
+    """delete row"""
+    delete_db = db.execute ("SELECT * FROM users WHERE id = ?", delete_db[0]['id'])
+    return render_template("report.html", transactions = delete_db)
+
+
+@app.route("/register", methods=["GET", "POST"])
+def register():
+    """Register users"""
+    if request.method == "GET":
+        return render_template ("registeruser.html")
+
+    else:
+        nome = request.form.get("nome")
+        sobrenome = request.form.get("sobrenome")
+        username_email = request.form.get("username_email")
+        phone = request.form.get("phone")
+        unit = request.form.get("unit")
+        password = request.form.get("password")
+        confirmation = request.form.get("confirmation")
+
+        if not username_email:
+            return apology("Must have a username")
+        if not password:
+            return apology("Must have password")
+        if not confirmation:
+            return apology ("Must have confirmation")
+        if password != confirmation:
+            return apology ("Password and confirmation does not match")
+        
+        hash = generate_password_hash(password)
+
+        try:
+            new_user = db.execute("INSERT INTO users (username_email, hash, nome, sobrenome, phone, unit) VALUES (?, ?, ?, ?, ?, ?)", username_email, hash, nome, sobrenome, phone, unit)
+            flash("User registered")
+
+        except:
+             return apology("username already exists")
+
+        session["user_id"] = new_user
+        return redirect("/register")
+    
+@app.route("/logout")
+def logout():
+    """Log user out"""
+
+    # Forget any user_id
+    session.clear()
+
+    # Redirect user to login form
+    return redirect("/")
 

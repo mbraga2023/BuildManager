@@ -1,6 +1,6 @@
-@app.route("/register_user", methods=["GET", "POST"])
-def register():
-    """Register user"""
+@app.route("/registeruser", methods=["GET", "POST"])
+def registeruser():
+    """Register users"""
     if request.method == "GET":
         return render_template ("register_user.html")
 
@@ -10,27 +10,25 @@ def register():
         email = request.form.get("email")
         phone = request.form.get("phone")
         unit = request.form.get("unit")
-        password = request.form.get("password")
-        confirmation = request.form.get("confirmation")
+
+        if not nome:
+            return apology("Must have a nome")
 
         try:
-            new_user = db.execute("INSERT INTO residentes (nome, sobrenome, email, phone, unit, password ) VALUES (?, ?, ?, ?, ?, ?)", nome, sobrenome, email, phone, unit, password)
+            new_user = db.execute("INSERT INTO residentes (nome, sobrenome, email, phone, unit) VALUES (?, ?, ?, ?, ?)", nome, sobrenome, email, phone, unit)
+            flash("User registered")
+
         except:
-            return print("username already exists")
+             return apology("Resident already exists")
 
-        return redirect("/")
+       
+        return redirect("/registeruser")
 
+codephpmyadmin
+flamengocampeaodomundoemmilnovecentoseoitentaeum
 
+GRANT SELECT, INSERT, UPDATE, DELETE ON phpmyadmin.* TO 'pma'@'localhost' IDENTIFIED BY 'flamengocampeaodomundoemmilnovecentoseoitentaeum
+';
+GRANT ALL PRIVILEGES ON *.* TO 'michel'@'localhost' IDENTIFIED BY 'flamengocampeaodomundoemmilnovecentoseoitentaeum' WITH GRANT OPTION;
 
- if not username:
-            flash("You need to type Username")
-            return redirect ("/register")
-        if not password:
-            flash("You need to type Password")
-            return redirect ("/register")
-        if not confirmation:
-            flash("Need to tyoe confirmation")
-            return redirect ("/register")
-        if password != confirmation:
-            flash("Confirmation not match")
-            return redirect ("/register")
+"UPDATE residentes SET address = %s WHERE address = %s" val = ("Valley 345", "Canyon 123")
